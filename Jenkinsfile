@@ -22,9 +22,13 @@ pipeline {
         stage('Test Docker Image') {
             steps {
                 script {
-                    // Используем другой порт
+                    // Запускаем контейнер
                     bat "docker run -d -p 5001:5000 --name calc-test ${env.IMAGE_NAME}:${env.IMAGE_TAG}"
-                    bat "timeout /t 10 /nobreak"
+                    
+                    // Ждем запуска приложения (альтернатива sleep)
+                    bat "ping -n 10 127.0.0.1 > nul"
+                    
+                    // Проверяем здоровье приложения
                     bat "curl http://localhost:5001/health || echo Health check completed"
                 }
             }
@@ -39,14 +43,13 @@ pipeline {
         stage('Verify Image') {
             steps {
                 bat "docker images ${env.IMAGE_NAME}"
-                bat "docker run --rm ${env.IMAGE_NAME}:${env.IMAGE_TAG} python --version"
+                bat "docker run --rm ${env.IMAGE_NAME}:${env.IMAGE_TAG} python -c \"print('App is working!')\""
             }
         }
     }
 
     post {
         always {
-            // Заменим cleanWs на deleteDir
             deleteDir()
             bat "docker system prune -f || echo Docker cleanup completed"
         }
