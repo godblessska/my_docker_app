@@ -23,7 +23,7 @@ pipeline {
             steps {
                 script {
                     // Запускаем контейнер
-                    bat "docker run -d -p 5001:5000 --name calc-test ${env.IMAGE_NAME}:${env.IMAGE_TAG}"
+                    bat "docker run -d -p 5001:5001 --name calc-test ${env.IMAGE_NAME}:${env.IMAGE_TAG}"
                     
                     // Ждем запуска приложения (альтернатива sleep)
                     bat "ping -n 10 127.0.0.1 > nul"
